@@ -3,12 +3,14 @@ const setup = require('../data/setup');
 const request = require('supertest');
 const app = require('../lib/app');
 const UserService = require('../lib/services/UserServices');
+const seed = require('../db/seed');
 
 describe('auth routes', () => {
   let user;
   const agent = request.agent(app);
   beforeEach(async () => {
     return setup(pool)
+      .then(() => seed())
       .then(() => {
         UserService.create({
           userName: 'userNameDAN',
@@ -99,5 +101,13 @@ describe('auth routes', () => {
     // expect(res.body.user).toEqual({
     //   ...user,
     // });
+  });
+  it('gets all users via GET', () => {
+    return request(app)
+      .get('/api/v1/auth/users')
+      .then((res) => {
+        console.log(res.body);
+        expect(res.body.length).toBe(11);
+      });
   });
 });
